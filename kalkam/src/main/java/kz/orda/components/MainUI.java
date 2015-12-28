@@ -34,19 +34,17 @@ public class MainUI extends UI {
         final VerticalLayout root = new VerticalLayout();
         root.setSizeFull();
         setContent(root);
-
         final Panel viewContainer = new Panel();
         viewContainer.setSizeFull();
         root.addComponent(viewContainer);
         root.setExpandRatio(viewContainer, 1.0f);
-
         Navigator navigator = new Navigator(this, viewContainer);
         navigator.addProvider(viewProvider);
         navigator.navigateTo("sale");
     }
 
-//    @WebServlet(value = "/*", asyncSupported = true)
-//    @VaadinServletConfiguration(productionMode = false, ui = MainUI.class, widgetset = "kz.orda.components.widgetset.CodecatcherWidgetset")
-//    public static class Servlet extends VaadinServlet {
-//    }
+    @WebServlet(value = "/*", asyncSupported = true)
+    @VaadinServletConfiguration(productionMode = false, ui = MainUI.class, widgetset = "kz.orda.components.widgetset.CodecatcherWidgetset")
+    public static class Servlet extends VaadinServlet {
+    }
 }

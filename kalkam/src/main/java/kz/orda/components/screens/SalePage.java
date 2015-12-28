@@ -1,5 +1,6 @@
 package kz.orda.components.screens;
 
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.event.ShortcutAction;
@@ -51,15 +52,11 @@ public class SalePage extends VerticalLayout implements View {
         codeTextField.setImmediate(true);
         codeTextField.setWidth("100%");
         CodeCatcher codeCatcher = new CodeCatcher(this);
-        codeCatcher.setStartCharacter('*');
-        codeCatcher.setStartCharacter('*');
-        codeCatcher.addListener(new CodeCatcher.CodeCatchedListener() {
-            @Override
-            public void onCodeCatch(CodeCatchedEvent event) {
-                codeTextField.setValue(event.getCode());
-            }
-        });
-        codeTextField.addShortcutListener(new ShortcutListener("EnterOnTextAreaShorcut", ShortcutAction.KeyCode.ENTER, null) {
+        codeCatcher.setStartCharacter('B');
+        codeCatcher.setEndCharacter((char) 10);
+        codeCatcher.setAlwaysOn(true);
+        codeCatcher.addListener(event -> codeTextField.setValue(event.getCode()));
+        ShortcutListener enterListener = new ShortcutListener("EnterShorcut", ShortcutAction.KeyCode.ENTER, null) {
             @Override
             public void handleAction(Object o, Object o1) {
                 Product product = productService.findByCode(codeTextField.getValue());
@@ -69,7 +66,20 @@ public class SalePage extends VerticalLayout implements View {
                     Notification.show("Товар не найден");
                 }
             }
-        });
+        };
+        codeTextField.addFocusListener(focusEvent -> codeTextField.addShortcutListener(enterListener));
+        codeTextField.addBlurListener(blurEvent -> codeTextField.removeShortcutListener(enterListener));
+//        codeTextField.addShortcutListener(new ShortcutListener("EnterOnTextAreaShorcut", ShortcutAction.KeyCode.ENTER, null) {
+//            @Override
+//            public void handleAction(Object o, Object o1) {
+//                Product product = productService.findByCode(codeTextField.getValue());
+//                if (product != null) {
+//                    selectProduct(product);
+//                } else {
+//                    Notification.show("Товар не найден");
+//                }
+//            }
+//        });
         BeanQueryFactory<ProductBeanQuery> queryFactory = new BeanQueryFactory<>(ProductBeanQuery.class);
         Map<String, Object> queryConfiguration = new HashMap<>();
         queryConfiguration.put("productService", productService);
@@ -146,7 +156,9 @@ public class SalePage extends VerticalLayout implements View {
                 operation.setPrice(product.getPrice());
                 operation.setDate(new Date());
                 operation.setAmount(Double.parseDouble(amountTextField.getValue()));
-                beanItemContainer.addItem(operation);
+                BeanItem newItem = beanItemContainer.addItem("");
+                newItem.getItemProperty("name").setValue("");
+                newItem.getItemProperty("volume").setValue("");
             }
         });
 
