@@ -8,14 +8,13 @@ import com.vaadin.client.ServerConnector;
 import com.vaadin.client.communication.RpcProxy;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.extensions.AbstractExtensionConnector;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.shared.ui.Connect;
 
 import elemental.events.KeyboardEvent.KeyCode;
 import kz.orda.components.widgetset.CodeCatcher;
 
-@Connect(kz.orda.components.widgetset.CodeCatcher.class)
-public class CodeCatcherConnector extends AbstractExtensionConnector implements NativePreviewHandler {
+@Connect(CodeCatcher.class)
+public class CodeCatcherConnector extends AbstractExtensionConnector implements NativePreviewHandler{
     private static final long serialVersionUID = 4550594626391658435L;
 
     private final CodeCatcherServerRpc rpc = RpcProxy.create(CodeCatcherServerRpc.class, this);
@@ -38,7 +37,6 @@ public class CodeCatcherConnector extends AbstractExtensionConnector implements 
 
     @Override
     protected void extend(ServerConnector target) {
-
         handler = Event.addNativePreviewHandler(this);
     }
 
@@ -48,6 +46,7 @@ public class CodeCatcherConnector extends AbstractExtensionConnector implements 
         super.onUnregister();
     }
 
+    //nativeEvent.getCtrlKey() && nativeEvent.getShiftKey() &&
     @Override
     public void onPreviewNativeEvent(NativePreviewEvent event) {
         if (event.getNativeEvent().getType().contains("key")) {
@@ -55,25 +54,25 @@ public class CodeCatcherConnector extends AbstractExtensionConnector implements 
             int charCode = -1;
             if (event.getNativeEvent().getType().equals("keypress")) {
                 charCode = event.getNativeEvent().getCharCode();
-                // check if a "function" key was pressed.
-//                if (charCode == 0) {
-//                    int keyCode = event.getNativeEvent().getKeyCode();
-//                    // remap enter and maybe other keys in the future.
-//                    if (keyCode == KeyCode.ENTER) {
-//                        charCode = keyCode;
-//                    } else {
-//                        return;
-//                    }
+                 //check if a "function" key was pressed.
+                if (charCode == 0) {
+                    int keyCode = event.getNativeEvent().getKeyCode();
+                    // remap enter and maybe other keys in the future.
+                    if (keyCode == KeyCode.ENTER) {
+                        charCode = keyCode;
+                    } else {
+                        return;
+                    }
 
-//                }
+                }
 
                 if (this.isReadingJustEnded && this.isSkipFollowingReturn) {
                     this.isReadingJustEnded = false;
-                    // check if "Return"-key was pressed.
-//                    if (charCode == KeyCode.ENTER) {
-//                        event.cancel();
-//                        return;
-//                    }
+                     //check if "Return"-key was pressed.
+                    if (charCode == KeyCode.ENTER) {
+                        event.cancel();
+                        return;
+                    }
                 }
 
                 if (this.isAlwaysOn) {
@@ -116,27 +115,14 @@ public class CodeCatcherConnector extends AbstractExtensionConnector implements 
      * @param event
      * @param charCode
      */
-    private int startFlag = 0;
-
     private void processNormalMode(NativePreviewEvent event, int charCode) {
-        int keyCode = event.getNativeEvent().getKeyCode();
-        if (keyCode == KeyCode.SHIFT) {
-            this.startFlag = this.startFlag | 1;
-        } else if (keyCode == KeyCode.CTRL) {
-            this.startFlag = this.startFlag | 2;
-        } else if (keyCode == KeyCode.B) {
-            this.startFlag = this.startFlag | 4;
-        } else {
-            this.startFlag = 0;
-        }
-        if (!this.isReadingCode && this.startFlag == 7) {
+        if (!this.isReadingCode && charCode == codeStartKeyCode) {
             this.isReadingCode = true;
             event.cancel();
             this.code = "";
             this.codeLength = 0;
-            this.startFlag = 0;
         } else if (this.isReadingCode) {
-            if (keyCode == 10) {
+            if (charCode == codeEndKeyCode || charCode == KeyCode.ENTER) {
                 this.isReadingCode = false;
                 this.isReadingJustEnded = true;
                 event.cancel();
@@ -179,6 +165,5 @@ public class CodeCatcherConnector extends AbstractExtensionConnector implements 
         this.isSkipFollowingReturn = state.isSkipFollowingReturn;
         this.isAlwaysOn = state.isAlwaysOn;
     }
-
 }
 

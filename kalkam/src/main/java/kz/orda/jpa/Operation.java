@@ -83,12 +83,15 @@ public class Operation {
 
         Operation operation = (Operation) o;
 
-        return !(id != null ? !id.equals(operation.id) : operation.id != null);
+        if (id != null ? !id.equals(operation.id) : operation.id != null) return false;
+        return !(date != null ? !date.equals(operation.date) : operation.date != null);
 
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        return result;
     }
 }

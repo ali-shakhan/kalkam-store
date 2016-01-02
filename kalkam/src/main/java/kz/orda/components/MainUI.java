@@ -34,13 +34,22 @@ public class MainUI extends UI {
         final VerticalLayout root = new VerticalLayout();
         root.setSizeFull();
         setContent(root);
+        MenuBar menuBar = new MenuBar();
+        menuBar.setSizeUndefined();
+        menuBar.addItem("Касса", (MenuBar.Command) menuItem -> UI.getCurrent().getNavigator().navigateTo(""));
+        menuBar.addItem("Все товары", (MenuBar.Command) menuItem -> UI.getCurrent().getNavigator().navigateTo("products"));
+        VerticalLayout verticalLayout = new VerticalLayout(menuBar);
+        verticalLayout.setSizeUndefined();
+        verticalLayout.setMargin(true);
+        root.addComponent(verticalLayout);
+        root.setComponentAlignment(verticalLayout, Alignment.TOP_CENTER);
         final Panel viewContainer = new Panel();
         viewContainer.setSizeFull();
         root.addComponent(viewContainer);
         root.setExpandRatio(viewContainer, 1.0f);
         Navigator navigator = new Navigator(this, viewContainer);
         navigator.addProvider(viewProvider);
-        navigator.navigateTo("sale");
+        navigator.navigateTo("");
     }
 
     @WebServlet(value = "/*", asyncSupported = true)

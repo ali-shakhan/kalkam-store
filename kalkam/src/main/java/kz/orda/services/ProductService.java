@@ -21,8 +21,10 @@ public interface ProductService {
     List<Product> page(int start, int number);
 
     List<Product> pageWhereName(String name, int start, int size);
-
-    List<Product> findByName(String name);
+    List<Product> pageWhereName(String name, int start, int size, Sort sort);
+    List<Product> pageWhereCode(String code, int start, int size);
+    List<Product> pageWhereCode(String code, int start, int size, Sort sort);
 
     Long countByName(String name);
+    Long countByCode(String code);
 }

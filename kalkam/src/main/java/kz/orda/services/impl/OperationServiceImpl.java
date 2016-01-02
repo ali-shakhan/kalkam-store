@@ -5,12 +5,14 @@ import kz.orda.jpa.Operation;
 import kz.orda.services.OperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Created by Ali on 27.12.2015.
  */
+@Service("operationService")
 public class OperationServiceImpl implements OperationService {
     @Autowired
     private OperationRepository operationRepository;

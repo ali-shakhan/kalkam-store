@@ -63,12 +63,30 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<Product> findByName(String name) {
-        return productRepository.findByNameContaining(name);
+    public List<Product> pageWhereName(String name, int start, int size, Sort sort) {
+        int page = start / size;
+        return productRepository.findByNameContaining(name, new PageRequest(page, size), sort);
+    }
+
+    @Override
+    public List<Product> pageWhereCode(String code, int start, int size) {
+        int page = start / size;
+        return productRepository.findByCode(code, new PageRequest(page, size));
+    }
+
+    @Override
+    public List<Product> pageWhereCode(String code, int start, int size, Sort sort) {
+        int page = start / size;
+        return productRepository.findByCode(code, new PageRequest(page, size), sort);
     }
 
     @Override
     public Long countByName(String name) {
-        return countByName(name);
+        return productRepository.countByNameContaining(name);
+    }
+
+    @Override
+    public Long countByCode(String code) {
+        return productRepository.countByCode(code);
     }
 }
