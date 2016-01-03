@@ -19,6 +19,7 @@ public interface ProductService {
     int size();
 
     List<Product> page(int start, int number);
+    List<Product> page(int start, int number, Sort sort);
 
     List<Product> pageWhereName(String name, int start, int size);
     List<Product> pageWhereName(String name, int start, int size, Sort sort);

@@ -2,9 +2,9 @@ package kz.orda.services.impl;
 
 import kz.orda.dao.ProductRepository;
 import kz.orda.jpa.Product;
+import kz.orda.services.ChunkRequest;
 import kz.orda.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -51,33 +51,33 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public List<Product> page(int offset, int limit) {
-        int page = offset / limit;
-        return productRepository.findAll(new PageRequest(page, limit)).getContent();
+        return productRepository.findAll(new ChunkRequest(offset, limit)).getContent();
 
+    }
+
+    @Override
+    public List<Product> page(int start, int size, Sort sort) {
+        return productRepository.findAll(new ChunkRequest(start, size ,sort)).getContent();
     }
 
     @Override
     public List<Product> pageWhereName(String name, int start, int size) {
-        int page = start / size;
-        return productRepository.findByNameContaining(name, new PageRequest(page, size));
+        return productRepository.findByNameContaining(name, new ChunkRequest(start, size));
     }
 
     @Override
     public List<Product> pageWhereName(String name, int start, int size, Sort sort) {
-        int page = start / size;
-        return productRepository.findByNameContaining(name, new PageRequest(page, size), sort);
+        return productRepository.findByNameContaining(name, new ChunkRequest(start, size, sort));
     }
 
     @Override
     public List<Product> pageWhereCode(String code, int start, int size) {
-        int page = start / size;
-        return productRepository.findByCode(code, new PageRequest(page, size));
+        return productRepository.findByCode(code, new ChunkRequest(start, size));
     }
 
     @Override
     public List<Product> pageWhereCode(String code, int start, int size, Sort sort) {
-        int page = start / size;
-        return productRepository.findByCode(code, new PageRequest(page, size), sort);
+        return productRepository.findByCode(code, new ChunkRequest(start, size, sort));
     }
 
     @Override

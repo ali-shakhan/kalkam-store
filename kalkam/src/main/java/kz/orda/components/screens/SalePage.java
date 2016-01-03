@@ -122,7 +122,7 @@ public class SalePage extends VerticalLayout implements View {
         selectedProducts.setVisibleColumns("product.name", "price", "amount", "sum");
         selectedProducts.setColumnHeaders("Товар", "Цена", "Колич./масса", "Сумма");
         selectedProducts.setFooterVisible(true);
-        selectedProducts.setColumnFooter("amount", "Общая сумма");
+        selectedProducts.setColumnFooter("amount", "Общая сумма:");
         selectedProducts.addShortcutListener(new ShortcutListener("deleteProductAction", ShortcutAction.KeyCode.DELETE, null) {
             @Override
             public void handleAction(Object o, Object o1) {
@@ -208,7 +208,9 @@ public class SalePage extends VerticalLayout implements View {
         Button cancelButton = new Button("Отмена");
         cancelButton.addClickListener(clickEvent -> {
             insertionTextField.setValue("");
+            depositTextField.setReadOnly(false);
             depositTextField.setValue("");
+            depositTextField.setReadOnly(true);
             window.close();
         });
         HorizontalLayout completeCancelWrapper = new HorizontalLayout(cancelButton, completeButton);
@@ -311,17 +313,13 @@ public class SalePage extends VerticalLayout implements View {
                         operation.setOperationType(OperationType.SALE);
                         operation.setAmount(amount);
                         beanItemContainer.addItem(operation);
-                        updateTotalSum();
-                        addProductLayout.removeAllComponents();
-                        codeTextField.setReadOnly(false);
-                        productComboBox.setReadOnly(false);
-                        codeTextField.setValue("");
-                        productComboBox.setValue(null);
+                        clearFields();
+                        codeTextField.focus();
                     } else if (amount <= 0) {
                         Notification.show("Объем товара должен быть больше нуля");
                         amountTextField.focus();
                     } else {
-                        Notification.show("Максимальный объем товара на складе: " + product.getAmount() + " (" + product.getUnit() + ")");
+                        Notification.show("Максимальный объем товара: " + product.getAmount() + " (" + product.getUnit() + ")");
                         amountTextField.focus();
                     }
                 } catch (NumberFormatException e) {
@@ -329,17 +327,21 @@ public class SalePage extends VerticalLayout implements View {
                     amountTextField.focus();
                 }
             });
+            addButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
             Button cancelButton = new Button("Отмена");
             cancelButton.addClickListener(clickEvent -> {
                 clearFields();
             });
+            HorizontalLayout addCancelWrapper = new HorizontalLayout(cancelButton, addButton);
+            addCancelWrapper.setSpacing(true);
             addProductLayout.addComponent(amountTextField);
-            addProductLayout.addComponent(cancelButton);
-            addProductLayout.addComponent(addButton);
+            Label amountLabel = new Label("На складе: " + product.getAmount() + " (" + product.getUnit() + ")");
+            addProductLayout.addComponent(amountLabel);
+            addProductLayout.setComponentAlignment(amountLabel, Alignment.MIDDLE_CENTER);
+            addProductLayout.addComponent(addCancelWrapper);
+            addProductLayout.setComponentAlignment(addCancelWrapper, Alignment.BOTTOM_RIGHT);
             addProductLayout.setSpacing(true);
             addProductLayout.setWidth("100%");
-            addProductLayout.setComponentAlignment(addButton, Alignment.BOTTOM_RIGHT);
-            addProductLayout.setComponentAlignment(cancelButton, Alignment.BOTTOM_RIGHT);
             amountTextField.focus();
         }
     }

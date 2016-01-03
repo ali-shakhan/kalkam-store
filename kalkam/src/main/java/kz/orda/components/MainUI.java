@@ -6,6 +6,7 @@ import com.vaadin.annotations.Widgetset;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.*;
@@ -36,11 +37,13 @@ public class MainUI extends UI {
         setContent(root);
         MenuBar menuBar = new MenuBar();
         menuBar.setSizeUndefined();
-        menuBar.addItem("Касса", (MenuBar.Command) menuItem -> UI.getCurrent().getNavigator().navigateTo(""));
-        menuBar.addItem("Все товары", (MenuBar.Command) menuItem -> UI.getCurrent().getNavigator().navigateTo("products"));
+        menuBar.addItem("Касса", menuItem -> UI.getCurrent().getNavigator().navigateTo(""));
+        menuBar.addItem("Все товары", menuItem -> UI.getCurrent().getNavigator().navigateTo("products"));
+        menuBar.addItem("Операции", menuItem -> UI.getCurrent().getNavigator().navigateTo("operations"));
+        menuBar.addItem("Категорий", menuItem -> UI.getCurrent().getNavigator().navigateTo("categories"));
         VerticalLayout verticalLayout = new VerticalLayout(menuBar);
         verticalLayout.setSizeUndefined();
-        verticalLayout.setMargin(true);
+        verticalLayout.setMargin(new MarginInfo(true, true, false, true));
         root.addComponent(verticalLayout);
         root.setComponentAlignment(verticalLayout, Alignment.TOP_CENTER);
         final Panel viewContainer = new Panel();
@@ -49,7 +52,6 @@ public class MainUI extends UI {
         root.setExpandRatio(viewContainer, 1.0f);
         Navigator navigator = new Navigator(this, viewContainer);
         navigator.addProvider(viewProvider);
-        navigator.navigateTo("");
     }
 
     @WebServlet(value = "/*", asyncSupported = true)

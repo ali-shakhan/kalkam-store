@@ -15,11 +15,11 @@ public class Product {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "code")
+    @Column(name = "code", unique = true)
     private String code;
 
     @Column(name = "amount")
-    private Double amount;
+    private Double amount = 0.0;
 
     @ManyToOne
     private Category category;

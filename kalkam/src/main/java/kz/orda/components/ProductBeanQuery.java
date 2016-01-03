@@ -5,6 +5,7 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.server.SystemError;
 import kz.orda.jpa.Product;
 import kz.orda.services.ProductService;
+import org.springframework.data.domain.Sort;
 import org.vaadin.addons.lazyquerycontainer.AbstractBeanQuery;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
@@ -42,20 +43,33 @@ public class ProductBeanQuery extends AbstractBeanQuery<Product> {
     @Override
     protected List<Product> loadBeans(int start, int size) {
         List<Container.Filter> filters = getQueryDefinition().getFilters();
+        Sort sort = null;
         if (getSortPropertyIds().length > 0) {
             String sortPropertyId = getSortPropertyIds()[0].toString();
             boolean sortState = getSortStates()[0];
+            sort = new Sort(sortState ? Sort.Direction.ASC : Sort.Direction.DESC, sortPropertyId);
         }
 
+        if (sort == null) {
+            if (!filters.isEmpty()) {
+                SimpleStringFilter stringFilter = (SimpleStringFilter) filters.get(0);
+                if ("name".equals(stringFilter.getPropertyId())) {
+                    return ((ProductService) getQueryConfiguration().get("productService")).pageWhereName(stringFilter.getFilterString(), start, size);
+                } else {
+                    return ((ProductService) getQueryConfiguration().get("productService")).pageWhereCode(stringFilter.getFilterString(), start, size);
+                }
+            }
+            return ((ProductService) getQueryConfiguration().get("productService")).page(start, size);
+        }
         if (!filters.isEmpty()) {
             SimpleStringFilter stringFilter = (SimpleStringFilter) filters.get(0);
             if ("name".equals(stringFilter.getPropertyId())) {
-                return ((ProductService) getQueryConfiguration().get("productService")).pageWhereName(stringFilter.getFilterString(), start, size);
+                return ((ProductService) getQueryConfiguration().get("productService")).pageWhereName(stringFilter.getFilterString(), start, size, sort);
             } else {
-                return ((ProductService) getQueryConfiguration().get("productService")).pageWhereCode(stringFilter.getFilterString(), start, size);
+                return ((ProductService) getQueryConfiguration().get("productService")).pageWhereCode(stringFilter.getFilterString(), start, size, sort);
             }
         }
-        return ((ProductService) getQueryConfiguration().get("productService")).page(start, size);
+        return ((ProductService) getQueryConfiguration().get("productService")).page(start, size, sort);
     }
 
     @Override

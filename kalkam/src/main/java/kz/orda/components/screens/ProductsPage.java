@@ -1,9 +1,12 @@
 package kz.orda.components.screens;
 
 import com.vaadin.data.util.filter.SimpleStringFilter;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import kz.orda.components.ProductBeanQuery;
@@ -34,9 +37,9 @@ public class ProductsPage extends VerticalLayout implements View {
     public void init() {
         setSizeFull();
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.setMargin(true);
+        verticalLayout.setMargin(new MarginInfo(true, false, false, false));
         verticalLayout.setSpacing(true);
-        verticalLayout.setWidth("60%");
+        verticalLayout.setWidth("80%");
         verticalLayout.setHeight("100%");
         TextField nameFilterTextField = new TextField();
         nameFilterTextField.setInputPrompt("Название товара");
@@ -57,6 +60,7 @@ public class ProductsPage extends VerticalLayout implements View {
             codeFilterTextField.setValue(event.getCode());
         });
         Button searchButton = new Button(FontAwesome.SEARCH);
+        searchButton.setDescription("Найти");
         searchButton.addClickListener(clickEvent -> {
             if (!nameFilterTextField.getValue().isEmpty()) {
                 addNameFilter(nameFilterTextField.getValue(), "name");
@@ -64,8 +68,23 @@ public class ProductsPage extends VerticalLayout implements View {
                 addNameFilter(codeFilterTextField.getValue(), "code");
             }
         });
+        ShortcutListener enterListener = new ShortcutListener("enter", ShortcutAction.KeyCode.ENTER, null) {
+            @Override
+            public void handleAction(Object o, Object o1) {
+                searchButton.click();
+            }
+        };
+        nameFilterTextField.addFocusListener(focusEvent -> nameFilterTextField.addShortcutListener(enterListener));
+        nameFilterTextField.addBlurListener(blurEvent -> nameFilterTextField.removeShortcutListener(enterListener));
+        codeFilterTextField.addFocusListener(focusEvent -> codeFilterTextField.addShortcutListener(enterListener));
+        codeFilterTextField.addBlurListener(blurEvent -> codeFilterTextField.removeShortcutListener(enterListener));
         Button editButton = new Button(FontAwesome.EDIT);
-        HorizontalLayout toolBar = new HorizontalLayout(nameFilterTextField, codeFilterTextField, searchButton, editButton);
+        editButton.setDescription("Редактировать");
+        editButton.setEnabled(false);
+        Button addButton = new Button(FontAwesome.PLUS);
+        addButton.setDescription("Добавить");
+        addButton.addClickListener(clickEvent -> UI.getCurrent().getNavigator().navigateTo("product"));
+        HorizontalLayout toolBar = new HorizontalLayout(nameFilterTextField, codeFilterTextField, searchButton, editButton, addButton);
         toolBar.setSpacing(true);
         verticalLayout.addComponent(toolBar);
         BeanQueryFactory<ProductBeanQuery> queryFactory = new BeanQueryFactory<>(ProductBeanQuery.class);
@@ -76,12 +95,19 @@ public class ProductsPage extends VerticalLayout implements View {
         queryDefinition.setMaxNestedPropertyDepth(1);
         container = new LazyQueryContainer(queryDefinition, queryFactory);
         container.addContainerProperty("name", String.class, "", true, true);
+        container.addContainerProperty("code", String.class, "", true, true);
         container.addContainerProperty("price", Double.class, "", true, true);
         container.addContainerProperty("amount", Double.class, "", true, true);
         container.addContainerProperty("unit", String.class, "", true, true);
         container.addContainerProperty("category.name", String.class, "", true, true);
         Table productsTable = new Table("", container);
-        productsTable.setColumnHeaders("Название", "Цена", "Колич./масса", "Ед. измернеия", "Категория");
+        editButton.addClickListener(clickEvent -> {
+            if (productsTable.getValue() != null) {
+                UI.getCurrent().getNavigator().navigateTo("product/" + productsTable.getValue());
+            }
+        });
+        productsTable.addValueChangeListener(valueChangeEvent -> editButton.setEnabled(productsTable.getValue() != null));
+        productsTable.setColumnHeaders("Название", "Код", "Цена", "Колич./масса", "Ед. измерения", "Категория");
         productsTable.setSelectable(true);
         productsTable.setSizeFull();
         verticalLayout.addComponent(productsTable);
