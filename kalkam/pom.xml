@@ -5,11 +5,11 @@
 
     <groupId>kz.orda</groupId>
     <artifactId>kalkam</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1</version>
     <packaging>jar</packaging>
 
     <name>kalkam</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Kalkam application</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -89,7 +89,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-maven-plugin</artifactId>
-            <version>7.5.5</version>
+            <version>7.6.0</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -132,37 +132,56 @@
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>7.5.5</version>
+                <!-- Version 2.1.0-1 works at least with Vaadin 6.5 -->
+                <version>7.6.0</version>
                 <configuration>
                     <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-                    <!-- <runTarget>mobilemail</runTarget> -->
-                    <!-- We are doing "inplace" but into subdir VAADIN/widgetsets. This
-                        way compatible with Vaadin eclipse plugin. -->
-                    <webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets
-                    </webappDirectory>
-                    <hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets
-                    </hostedWebapp>
+                    <webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets</webappDirectory>
+                    <hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets</hostedWebapp>
                     <noServer>true</noServer>
-                    <!-- Remove draftCompile when project is ready -->
-                    <draftCompile>false</draftCompile>
+                    <persistentunitcachedir>${basedir}/target/tmp/gwt-unitCache</persistentunitcachedir>
                     <compileReport>true</compileReport>
-                    <style>OBF</style>
                     <strict>true</strict>
                     <runTarget>http://localhost:8080/</runTarget>
                 </configuration>
                 <executions>
                     <execution>
                         <configuration>
-                            <!-- if you don't specify any modules, the plugin will find them -->
-                            <!-- <modules> <module>com.vaadin.demo.mobilemail.gwt.ColorPickerWidgetSet</module>
-                                </modules> -->
+                            <!-- no specified modules; the plugin will find them automatically-->
                         </configuration>
+                        <phase>compile</phase>
                         <goals>
+                            <goal>clean</goal>
                             <goal>resources</goal>
                             <goal>update-theme</goal>
                             <goal>update-widgetset</goal>
                             <goal>compile-theme</goal>
+                            <goal>compile</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/webapp</directory>
+                                    <excludes>
+                                        <exclude>**/*.scss</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
